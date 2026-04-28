@@ -228,10 +228,7 @@ internal static class KubernetesDeployTestHelpers
             "This may indicate the CLI is not using the expected development templates.");
         output.WriteLine("✅ Template version message found during aspire new");
 
-        // Dismiss agent init prompt (same as DeclineAgentInitPromptAsync)
-        await auto.WaitAsync(500);
-        await auto.TypeAsync("n");
-        await auto.WaitForAnyPromptAsync(counter);
+        await auto.DeclineAgentInitPromptAsync(counter);
 
         // Step 2: cd into the project
         await auto.TypeAsync($"cd {projectName}");

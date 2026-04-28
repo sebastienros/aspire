@@ -482,16 +482,29 @@ internal static class Hex1bAutomatorTestHelpers
 
         await auto.WaitAsync(500);
         await auto.TypeAsync("n");
+        await auto.WaitAsync(1000);
+
+        var snapshot = auto.CreateSnapshot();
+        if (!HasSuccessPrompt(snapshot, counter) && agentInitPrompt.Search(snapshot).Count > 0)
+        {
+            await auto.EnterAsync();
+        }
 
         await auto.WaitUntilAsync(s =>
         {
-            var successSearcher = new CellPatternSearcher()
-                .FindPattern(counter.Value.ToString())
-                .RightText(" OK] $ ");
-            return successSearcher.Search(s).Count > 0;
+            return HasSuccessPrompt(s, counter);
         }, timeout: effectiveTimeout, description: $"success prompt [{counter.Value} OK] $ after agent init");
 
         counter.Increment();
+    }
+
+    private static bool HasSuccessPrompt(Hex1bTerminalSnapshot snapshot, SequenceCounter counter)
+    {
+        var successSearcher = new CellPatternSearcher()
+            .FindPattern(counter.Value.ToString())
+            .RightText(" OK] $ ");
+
+        return successSearcher.Search(snapshot).Count > 0;
     }
 
     /// <summary>
